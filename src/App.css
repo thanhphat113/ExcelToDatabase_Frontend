@@ -1,0 +1,26 @@
+#root {
+  scroll-behavior: smooth;
+  height: 100vh;
+}
+
+body {
+  font-family: "Roboto Slab", Arial, sans-serif;
+  font-size: 1.6rem;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  background-color: whitesmoke;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+button{
+  cursor: pointer;
+}
