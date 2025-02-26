@@ -14,6 +14,7 @@ function App() {
     const filesInputRef = useRef();
     const [selectedFile, setSelectedFile] = useState(null);
     const [selectedFileName, setSelectedFileName] = useState("");
+    const [connection, setConnection] = useState("");
 
     const handleFileInputClick = (e) => {
         const file = e.target.files[0];
@@ -25,7 +26,7 @@ function App() {
             alert("Có dữ liệu không phải file Excel hợp lệ");
             filesInputRef.current.value = "";
             setSelectedFile();
-            setSelectedFileName()
+            setSelectedFileName();
             return;
         }
         setSelectedFile(file);
@@ -57,12 +58,13 @@ function App() {
             try {
                 const response = await Api.post("/api/Database", {
                     DatabaseName: selectedDatabases,
+                    connectionString: connection,
                     TableName: selectedTables,
                     data: rows,
                 });
-                const result = response.data
+                const result = response.data;
                 alert(result.message);
-                if (result.statusCode === 200) handleRemoveFile()
+                if (result.statusCode === 200) handleRemoveFile();
             } catch (error) {
                 console.log("Lỗi", error);
             }
@@ -72,30 +74,20 @@ function App() {
     };
 
     const handleRemoveFile = (e) => {
-        e.stopPropagation()
+        e.stopPropagation();
         setSelectedFileName("");
         setSelectedFile();
         filesInputRef.current.value = "";
     };
 
     useEffect(() => {
-        const getDb = async () => {
-            try {
-                const response = await Api.get("/api/Database/list");
-                setDatabases(response.data);
-            } catch (error) {
-                console.log("Lỗi", error);
-            }
-        };
-
-        getDb();
-    }, []);
-
-    useEffect(() => {
         const getTb = async () => {
             try {
                 const response = await Api.get("/api/Database/tables", {
-                    params: { databaseName: selectedDatabases },
+                    params: {
+                        databaseName: selectedDatabases,
+                        connectionString: connection,
+                    },
                 });
                 setTables(response.data);
             } catch (error) {
@@ -112,10 +104,43 @@ function App() {
         }
     };
 
+    const handleConnection = async (connectionString) => {
+        console.log(connectionString);
+        if (!connectionString) {
+            alert("Vui lòng điền chuỗi kết nối của bạn");
+            return;
+        }
+        try {
+            const response = await Api.get("/api/Database/list", {
+                params: { connectionString: connectionString },
+            });
+            const result = response.data;
+            if (result.statusCode === 200) setDatabases(result.result);
+            else alert(result.message);
+        } catch (error) {
+            console.log("Lỗi", error);
+        }
+    };
+
     return (
         <>
             <div className=" w-full h-screen flex flex-col justify-center items-center">
                 <div className="w-1/2 h-1/2">
+                    <div className="mb-3 flex gap-5">
+                        <label>Chuỗi kết nối: </label>
+                        <input
+                            className="border bg-white ps-4 flex-1"
+                            value={connection}
+                            onChange={(e) => setConnection(e.target.value)}
+                            placeholder="Chuỗi kết nối..."
+                        ></input>
+                        <div className="h-[3rem] w-[10rem]">
+                            <Button
+                                action={() => handleConnection(connection)}
+                                label="Xác nhận"
+                            />
+                        </div>
+                    </div>
                     <div className="flex justify-between">
                         <div className="w-1/3 h-[3rem] flex gap-5 justify-between items-center">
                             <span>Database: </span>
@@ -153,9 +178,7 @@ function App() {
                             hidden
                             ref={filesInputRef}
                             type="file"
-                            onChange={(e) =>
-                                handleFileInputClick(e)
-                            }
+                            onChange={(e) => handleFileInputClick(e)}
                         ></input>
                         <div className="w-full flex relative flex-col items-center justify-center h-full border border-dashed  rounded-2xl">
                             {selectedFile && (
@@ -164,7 +187,7 @@ function App() {
                                 </div>
                             )}
                             <div className="">
-                                <i className="fas fa-cloud-upload-alt text-5xl group-hover:text-6xl"></i>
+                                <i className="fas fa-cloud-upload-alt text-5xl group-hover:text-6xl transition-all ease-in-out duration-[0.3s]"></i>
                             </div>
                             <span>Thả tệp tài liệu vào đây</span>
                             {selectedFileName && (
