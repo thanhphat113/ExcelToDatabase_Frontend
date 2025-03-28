@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import "./App.css";
-import Select from "./components/select";
+import Select from "react-select";
 import Api from "./Api";
 import * as XLSX from "xlsx";
 import Button from "./components/button";
@@ -142,20 +142,40 @@ function App() {
                         </div>
                     </div>
                     <div className="flex justify-between">
-                        <div className="w-1/3 h-[3rem] flex gap-5 justify-between items-center">
+                        <div className="w-1/2 h-[3rem] flex gap-5 justify-between items-center">
                             <span>Database: </span>
                             <Select
-                                options={databases}
-                                value={selectedDatabases}
-                                setValue={setSelectedDatabases}
+                                options={
+                                    databases
+                                        ? databases.map((item) => ({
+                                              value: item.name,
+                                              label: item.name,
+                                          }))
+                                        : []
+                                }
+                                className=" w-100"
+                                placeholder="Chọn database..."
+                                onChange={(selectedOptions) =>
+                                    setSelectedDatabases(selectedOptions.value)
+                                }
                             />
                         </div>
                         <div className="w-1/3 h-[3rem] flex gap-5 justify-between items-center">
                             <span>Tables: </span>
                             <Select
-                                options={tables}
-                                value={selectedTables}
-                                setValue={setSelectedTables}
+                                options={
+                                    tables
+                                        ? tables.map((item) => ({
+                                              value: item.name,
+                                              label: item.name,
+                                          }))
+                                        : []
+                                }
+                                className="mw-[5rem]"
+                                placeholder="Chọn table..."
+                                onChange={(selectedOptions) =>
+                                    setSelectedTables(selectedOptions.value)
+                                }
                             />
                         </div>
                         {selectedFile && (
